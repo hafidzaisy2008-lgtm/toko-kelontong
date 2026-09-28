@@ -3,26 +3,7 @@ from tkinter import ttk, messagebox
 import sqlite3
 from datetime import datetime
 
-# =========================================================
-# KONFIGURASI
-# =========================================================
-
 DB_NAME = "Toko_Kelontong.db"
-
-# WARNA APLIKASI
-HIJAU_GELAP = "#1B5E20"
-HIJAU = "#2E7D32"
-HIJAU_TERANG = "#43A047"
-
-PUTIH = "#FFFFFF"
-ABU = "#F5F5F5"
-ABU_TUA = "#E0E0E0"
-HITAM = "#212121"
-
-KUNING = "#F9A825"
-BIRU = "#1565C0"
-UNGU = "#6A1B9A"
-MERAH = "#C62828"
 
 
 # =========================================================
@@ -37,7 +18,6 @@ def buat_database():
     with koneksi_db() as conn:
         cur = conn.cursor()
 
-        # Tabel user
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +27,6 @@ def buat_database():
             )
         """)
 
-        # Tabel produk
         cur.execute("""
             CREATE TABLE IF NOT EXISTS produk (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +37,6 @@ def buat_database():
             )
         """)
 
-        # Tabel transaksi
         cur.execute("""
             CREATE TABLE IF NOT EXISTS transaksi (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,7 +45,6 @@ def buat_database():
             )
         """)
 
-        # Detail transaksi
         cur.execute("""
             CREATE TABLE IF NOT EXISTS detail_transaksi (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,31 +57,26 @@ def buat_database():
             )
         """)
 
-        # USER ADMIN
         cur.execute("""
             INSERT OR IGNORE INTO users
             (username, password, role)
             VALUES (?, ?, ?)
         """, ("admin", "cristiano rozikin", "admin"))
 
-        # USER KASIR
         cur.execute("""
             INSERT OR IGNORE INTO users
             (username, password, role)
             VALUES (?, ?, ?)
         """, ("kasir", "cr messi", "kasir"))
 
-        # Produk awal
         cur.execute("SELECT COUNT(*) FROM produk")
 
         if cur.fetchone()[0] == 0:
-
             produk = [
                 ("Beras 5 Kg", 65000, 75000, 20),
                 ("Gula 1 Kg", 15000, 18000, 30),
                 ("Minyak Goreng", 19000, 22000, 25),
-                ("Mie Instan", 2500, 3500, 100),
-                ("Marlong", 18000, 20000, 100)
+                ("Mie Instan", 2500, 3500, 100)
             ]
 
             cur.executemany("""
@@ -131,44 +103,12 @@ class AplikasiToko:
     def __init__(self, root):
 
         self.root = root
-
-        self.root.title("SMART-RETAIL - Unsikuy")
+        self.root.title("SMART-RETAIL - Toko Kelontong")
         self.root.geometry("900x600")
         self.root.resizable(False, False)
-        self.root.configure(bg=ABU)
 
         self.user = None
         self.keranjang = {}
-
-        # Style Treeview
-        self.style = ttk.Style()
-
-        try:
-            self.style.theme_use("clam")
-        except:
-            pass
-
-        self.style.configure(
-            "Treeview",
-            background=PUTIH,
-            foreground=HITAM,
-            rowheight=30,
-            fieldbackground=PUTIH,
-            font=("Arial", 10)
-        )
-
-        self.style.configure(
-            "Treeview.Heading",
-            background=HIJAU,
-            foreground=PUTIH,
-            font=("Arial", 10, "bold")
-        )
-
-        self.style.map(
-            "Treeview",
-            background=[("selected", HIJAU_TERANG)],
-            foreground=[("selected", PUTIH)]
-        )
 
         buat_database()
 
@@ -176,7 +116,7 @@ class AplikasiToko:
 
 
     # =====================================================
-    # BERSIHKAN HALAMAN
+    # HAPUS SEMUA WIDGET
     # =====================================================
 
     def bersihkan(self):
@@ -193,139 +133,75 @@ class AplikasiToko:
 
         self.bersihkan()
 
-        frame = tk.Frame(
-            self.root,
-            bg=PUTIH,
-            bd=2,
-            relief="solid"
-        )
+        frame = tk.Frame(self.root)
+        frame.pack(expand=True)
 
-        frame.place(
-            relx=0.5,
-            rely=0.5,
-            anchor="center",
-            width=430,
-            height=420
-        )
-
-        # Judul
         tk.Label(
             frame,
             text="SMART-RETAIL",
-            font=("Arial", 25, "bold"),
-            bg=PUTIH,
-            fg=HIJAU_GELAP
-        ).pack(pady=(35, 5))
+            font=("Arial", 28, "bold")
+        ).pack(pady=10)
 
         tk.Label(
             frame,
-            text="Sistem Kasir Toko Kelontong",
-            font=("Arial", 11),
-            bg=PUTIH,
-            fg="gray"
-        ).pack(pady=(0, 30))
+            text="TOKO KELONTONG",
+            font=("Arial", 14)
+        ).pack(pady=5)
 
-        # Username
         tk.Label(
             frame,
-            text="Username",
-            font=("Arial", 11, "bold"),
-            bg=PUTIH,
-            fg=HITAM
-        ).pack(anchor="w", padx=50)
+            text="Username"
+        ).pack(pady=(30, 5))
 
         self.entry_username = tk.Entry(
             frame,
-            font=("Arial", 12),
-            bd=1,
-            relief="solid"
+            width=30
         )
+        self.entry_username.pack()
 
-        self.entry_username.pack(
-            padx=50,
-            fill="x",
-            ipady=7,
-            pady=(5, 15)
-        )
-
-        # Password
         tk.Label(
             frame,
-            text="Password",
-            font=("Arial", 11, "bold"),
-            bg=PUTIH,
-            fg=HITAM
-        ).pack(anchor="w", padx=50)
+            text="Password"
+        ).pack(pady=(15, 5))
 
         self.entry_password = tk.Entry(
             frame,
-            font=("Arial", 12),
-            bd=1,
-            relief="solid",
+            width=30,
             show="*"
         )
+        self.entry_password.pack()
 
-        self.entry_password.pack(
-            padx=50,
-            fill="x",
-            ipady=7,
-            pady=(5, 25)
-        )
-
-        # Tombol Login
         tk.Button(
             frame,
             text="LOGIN",
-            command=self.login,
-            bg=HIJAU,
-            fg=PUTIH,
-            activebackground=HIJAU_TERANG,
-            activeforeground=PUTIH,
-            font=("Arial", 11, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            padx=50,
-            fill="x",
-            ipady=10
-        )
+            width=25,
+            command=self.login
+        ).pack(pady=25)
 
-        tk.Label(
-            frame,
-            text="Admin / Kasir",
-            font=("Arial", 9),
-            bg=PUTIH,
-            fg="gray"
-        ).pack(pady=15)
-
-
-    # =====================================================
-    # LOGIN PROSES
-    # =====================================================
 
     def login(self):
 
-        username = self.entry_username.get()
-        password = self.entry_password.get()
+        username = self.entry_username.get().strip()
+        password = self.entry_password.get().strip()
 
         with koneksi_db() as conn:
 
             cur = conn.cursor()
 
             cur.execute("""
-                SELECT username, role
+                SELECT id, username, role
                 FROM users
-                WHERE username = ?
-                AND password = ?
+                WHERE username = ? AND password = ?
             """, (username, password))
 
-            hasil = cur.fetchone()
+            user = cur.fetchone()
 
-        if hasil:
+        if user:
 
             self.user = {
-                "username": hasil[0],
-                "role": hasil[1]
+                "id": user[0],
+                "username": user[1],
+                "role": user[2]
             }
 
             self.halaman_utama()
@@ -334,320 +210,160 @@ class AplikasiToko:
 
             messagebox.showerror(
                 "Login Gagal",
-                "Username atau password salah!"
+                "Username atau password salah."
             )
 
 
     # =====================================================
-    # HALAMAN UTAMA
+    # MENU UTAMA
     # =====================================================
 
     def halaman_utama(self):
 
         self.bersihkan()
 
-        # Header
-        header = tk.Frame(
+        tk.Label(
             self.root,
-            bg=HIJAU_GELAP,
-            height=90
-        )
-
-        header.pack(fill="x")
+            text=f"SMART-RETAIL | {self.user['role'].upper()}",
+            font=("Arial", 24, "bold")
+        ).pack(pady=20)
 
         tk.Label(
-            header,
-            text="SMART-RETAIL",
-            font=("Arial", 25, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
-        ).pack(side="left", padx=30, pady=20)
-
-        tk.Label(
-            header,
-            text=f"{self.user['username']} | {self.user['role'].upper()}",
-            font=("Arial", 11, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
-        ).pack(side="right", padx=30)
-
-        # Area menu
-        menu = tk.Frame(
             self.root,
-            bg=ABU
-        )
+            text=f"Selamat datang, {self.user['username']}"
+        ).pack()
 
-        menu.pack(
-            fill="both",
-            expand=True,
-            padx=40,
-            pady=40
-        )
-
-        tk.Label(
-            menu,
-            text="MENU UTAMA",
-            font=("Arial", 20, "bold"),
-            bg=ABU,
-            fg=HIJAU_GELAP
-        ).pack(pady=(0, 25))
+        frame = tk.Frame(self.root)
+        frame.pack(pady=40)
 
         if self.user["role"] == "admin":
 
-            self.tombol_menu(
-                menu,
-                "KELOLA PRODUK",
-                self.halaman_produk,
-                HIJAU
-            )
-
-        self.tombol_menu(
-            menu,
-            "TRANSAKSI PENJUALAN",
-            self.halaman_transaksi,
-            KUNING
-        )
-
-        self.tombol_menu(
-            menu,
-            "RIWAYAT TRANSAKSI",
-            self.halaman_riwayat,
-            BIRU
-        )
-
-        if self.user["role"] == "admin":
-
-            self.tombol_menu(
-                menu,
-                "LAPORAN PENJUALAN",
-                self.halaman_laporan,
-                UNGU
-            )
-
-        self.tombol_menu(
-            menu,
-            "LOGOUT",
-            self.logout,
-            MERAH
-        )
-
-
-    # =====================================================
-    # TOMBOL MENU
-    # =====================================================
-
-    def tombol_menu(self, parent, text, command, warna):
+            tk.Button(
+                frame,
+                text="KELOLA PRODUK",
+                width=25,
+                height=2,
+                command=self.halaman_produk
+            ).grid(row=0, column=0, padx=10, pady=10)
 
         tk.Button(
-            parent,
-            text=text,
-            command=command,
-            bg=warna,
-            fg=PUTIH,
-            activebackground=warna,
-            activeforeground=PUTIH,
-            font=("Arial", 12, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            fill="x",
-            pady=6,
-            ipady=12
-        )
+            frame,
+            text="TRANSAKSI PENJUALAN",
+            width=25,
+            height=2,
+            command=self.halaman_transaksi
+        ).grid(row=0, column=1, padx=10, pady=10)
+
+        tk.Button(
+            frame,
+            text="RIWAYAT TRANSAKSI",
+            width=25,
+            height=2,
+            command=self.halaman_riwayat
+        ).grid(row=1, column=0, padx=10, pady=10)
+
+        if self.user["role"] == "admin":
+
+            tk.Button(
+                frame,
+                text="LAPORAN PENJUALAN",
+                width=25,
+                height=2,
+                command=self.halaman_laporan
+            ).grid(row=1, column=1, padx=10, pady=10)
+
+        tk.Button(
+            frame,
+            text="LOGOUT",
+            width=25,
+            height=2,
+            command=self.logout
+        ).grid(row=2, column=0, columnspan=2, pady=20)
 
 
     # =====================================================
-    # HALAMAN PRODUK
+    # KELOLA PRODUK
     # =====================================================
 
     def halaman_produk(self):
 
         self.bersihkan()
 
-        # Header
-        header = tk.Frame(
-            self.root,
-            bg=HIJAU_GELAP
-        )
-
-        header.pack(fill="x")
-
         tk.Label(
-            header,
+            self.root,
             text="KELOLA PRODUK",
-            font=("Arial", 22, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
-        ).pack(pady=20)
+            font=("Arial", 22, "bold")
+        ).pack(pady=15)
 
-        # Form
-        form = tk.Frame(
-            self.root,
-            bg=ABU
-        )
+        frame_input = tk.Frame(self.root)
+        frame_input.pack()
 
-        form.pack(
-            fill="x",
-            padx=30,
-            pady=20
-        )
+        tk.Label(frame_input, text="Nama").grid(row=0, column=0)
+        self.entry_nama = tk.Entry(frame_input, width=25)
+        self.entry_nama.grid(row=0, column=1, padx=5)
 
-        labels = [
-            "Nama Produk",
-            "Harga Modal",
-            "Harga Jual",
-            "Stok"
-        ]
+        tk.Label(frame_input, text="Harga Modal").grid(row=1, column=0)
+        self.entry_modal = tk.Entry(frame_input, width=25)
+        self.entry_modal.grid(row=1, column=1, padx=5)
 
-        self.entry_nama = tk.Entry(form, font=("Arial", 11))
-        self.entry_modal = tk.Entry(form, font=("Arial", 11))
-        self.entry_jual = tk.Entry(form, font=("Arial", 11))
-        self.entry_stok = tk.Entry(form, font=("Arial", 11))
+        tk.Label(frame_input, text="Harga Jual").grid(row=2, column=0)
+        self.entry_jual = tk.Entry(frame_input, width=25)
+        self.entry_jual.grid(row=2, column=1, padx=5)
 
-        entries = [
-            self.entry_nama,
-            self.entry_modal,
-            self.entry_jual,
-            self.entry_stok
-        ]
-
-        for i in range(4):
-
-            tk.Label(
-                form,
-                text=labels[i],
-                bg=ABU,
-                fg=HITAM,
-                font=("Arial", 10, "bold")
-            ).grid(
-                row=0,
-                column=i,
-                padx=5
-            )
-
-            entries[i].grid(
-                row=1,
-                column=i,
-                padx=5,
-                ipady=5
-            )
+        tk.Label(frame_input, text="Stok").grid(row=3, column=0)
+        self.entry_stok = tk.Entry(frame_input, width=25)
+        self.entry_stok.grid(row=3, column=1, padx=5)
 
         tk.Button(
-            form,
+            frame_input,
             text="TAMBAH PRODUK",
-            command=self.tambah_produk,
-            bg=HIJAU,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).grid(
-            row=2,
-            column=0,
-            columnspan=4,
-            pady=15,
-            ipadx=20,
-            ipady=7
-        )
+            command=self.tambah_produk
+        ).grid(row=4, column=0, columnspan=2, pady=10)
 
-        # Tabel
-        table_frame = tk.Frame(
+        self.tabel_produk = ttk.Treeview(
             self.root,
-            bg=ABU
+            columns=("id", "nama", "modal", "jual", "stok"),
+            show="headings",
+            height=12
         )
 
-        table_frame.pack(
-            fill="both",
-            expand=True,
-            padx=30
-        )
+        self.tabel_produk.heading("id", text="ID")
+        self.tabel_produk.heading("nama", text="Nama")
+        self.tabel_produk.heading("modal", text="Harga Modal")
+        self.tabel_produk.heading("jual", text="Harga Jual")
+        self.tabel_produk.heading("stok", text="Stok")
 
-        kolom = (
-            "ID",
-            "Nama",
-            "Harga Modal",
-            "Harga Jual",
-            "Stok"
-        )
-
-        self.tree_produk = ttk.Treeview(
-            table_frame,
-            columns=kolom,
-            show="headings"
-        )
-
-        for kol in kolom:
-
-            self.tree_produk.heading(
-                kol,
-                text=kol
-            )
-
-        self.tree_produk.column("ID", width=50)
-        self.tree_produk.column("Nama", width=250)
-        self.tree_produk.column("Harga Modal", width=130)
-        self.tree_produk.column("Harga Jual", width=130)
-        self.tree_produk.column("Stok", width=80)
-
-        self.tree_produk.pack(
-            fill="both",
-            expand=True
-        )
-
-        # Tombol bawah
-        bottom = tk.Frame(
-            self.root,
-            bg=ABU
-        )
-
-        bottom.pack(
-            fill="x",
-            padx=30,
-            pady=15
-        )
+        self.tabel_produk.pack(pady=15)
 
         tk.Button(
-            bottom,
+            self.root,
             text="HAPUS PRODUK",
-            command=self.hapus_produk,
-            bg=MERAH,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(side="left", ipadx=15, ipady=7)
+            command=self.hapus_produk
+        ).pack(side="left", padx=250)
 
         tk.Button(
-            bottom,
+            self.root,
             text="KEMBALI",
-            command=self.halaman_utama,
-            bg=HITAM,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(side="right", ipadx=15, ipady=7)
+            command=self.halaman_utama
+        ).pack(side="right", padx=250)
 
         self.tampilkan_produk_gui()
 
 
-    # =====================================================
-    # TAMPILKAN PRODUK
-    # =====================================================
-
     def tampilkan_produk_gui(self):
 
-        for item in self.tree_produk.get_children():
-
-            self.tree_produk.delete(item)
+        for item in self.tabel_produk.get_children():
+            self.tabel_produk.delete(item)
 
         with koneksi_db() as conn:
 
             cur = conn.cursor()
 
             cur.execute("""
-                SELECT id, nama_produk, harga_modal,
-                       harga_jual, stok
+                SELECT id, nama_produk,
+                       harga_modal,
+                       harga_jual,
+                       stok
                 FROM produk
                 ORDER BY id
             """)
@@ -656,7 +372,7 @@ class AplikasiToko:
 
         for row in data:
 
-            self.tree_produk.insert(
+            self.tabel_produk.insert(
                 "",
                 "end",
                 values=(
@@ -669,68 +385,42 @@ class AplikasiToko:
             )
 
 
-    # =====================================================
-    # TAMBAH PRODUK
-    # =====================================================
-
     def tambah_produk(self):
 
-        nama = self.entry_nama.get()
-        modal = self.entry_modal.get()
-        jual = self.entry_jual.get()
-        stok = self.entry_stok.get()
-
-        if not nama or not modal or not jual or not stok:
-
-            messagebox.showwarning(
-                "Peringatan",
-                "Semua data harus diisi!"
-            )
-
-            return
+        nama = self.entry_nama.get().strip()
 
         try:
-
-            modal = int(modal)
-            jual = int(jual)
-            stok = int(stok)
+            modal = int(self.entry_modal.get())
+            jual = int(self.entry_jual.get())
+            stok = int(self.entry_stok.get())
 
         except ValueError:
 
             messagebox.showerror(
                 "Error",
-                "Harga dan stok harus berupa angka!"
+                "Harga dan stok harus berupa angka."
             )
-
             return
 
-        if modal < 0 or jual < 0 or stok < 0:
+        if not nama:
 
             messagebox.showerror(
                 "Error",
-                "Harga dan stok tidak boleh negatif!"
+                "Nama produk tidak boleh kosong."
             )
-
             return
 
         with koneksi_db() as conn:
 
-            cur = conn.cursor()
-
-            cur.execute("""
+            conn.execute("""
                 INSERT INTO produk
                 (nama_produk, harga_modal, harga_jual, stok)
                 VALUES (?, ?, ?, ?)
-            """, (
-                nama,
-                modal,
-                jual,
-                stok
-            ))
+            """, (nama, modal, jual, stok))
 
         messagebox.showinfo(
             "Berhasil",
-            "Produk berhasil ditambahkan!"
+            "Produk berhasil ditambahkan."
         )
 
         self.entry_nama.delete(0, tk.END)
@@ -741,55 +431,40 @@ class AplikasiToko:
         self.tampilkan_produk_gui()
 
 
-    # =====================================================
-    # HAPUS PRODUK
-    # =====================================================
-
     def hapus_produk(self):
 
-        selected = self.tree_produk.selection()
+        pilihan = self.tabel_produk.selection()
 
-        if not selected:
+        if not pilihan:
 
             messagebox.showwarning(
                 "Peringatan",
-                "Pilih produk terlebih dahulu!"
+                "Pilih produk terlebih dahulu."
             )
-
             return
 
-        data = self.tree_produk.item(selected[0])
-
+        data = self.tabel_produk.item(pilihan[0])
         id_produk = data["values"][0]
-        nama_produk = data["values"][1]
 
-        yakin = messagebox.askyesno(
+        konfirmasi = messagebox.askyesno(
             "Konfirmasi",
-            f"Hapus produk '{nama_produk}'?"
+            "Yakin ingin menghapus produk ini?"
         )
 
-        if not yakin:
-            return
+        if konfirmasi:
 
-        with koneksi_db() as conn:
+            with koneksi_db() as conn:
 
-            cur = conn.cursor()
+                conn.execute(
+                    "DELETE FROM produk WHERE id = ?",
+                    (id_produk,)
+                )
 
-            cur.execute(
-                "DELETE FROM produk WHERE id = ?",
-                (id_produk,)
-            )
-
-        self.tampilkan_produk_gui()
-
-        messagebox.showinfo(
-            "Berhasil",
-            "Produk berhasil dihapus!"
-        )
+            self.tampilkan_produk_gui()
 
 
     # =====================================================
-    # HALAMAN TRANSAKSI
+    # TRANSAKSI
     # =====================================================
 
     def halaman_transaksi(self):
@@ -798,202 +473,92 @@ class AplikasiToko:
 
         self.keranjang = {}
 
-        # Header
-        header = tk.Frame(
-            self.root,
-            bg=HIJAU_GELAP
-        )
-
-        header.pack(fill="x")
-
         tk.Label(
-            header,
+            self.root,
             text="TRANSAKSI PENJUALAN",
-            font=("Arial", 22, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
-        ).pack(pady=20)
+            font=("Arial", 22, "bold")
+        ).pack(pady=15)
 
-        # Input
-        form = tk.Frame(
-            self.root,
-            bg=ABU
-        )
-
-        form.pack(
-            fill="x",
-            padx=30,
-            pady=20
-        )
+        frame = tk.Frame(self.root)
+        frame.pack()
 
         tk.Label(
-            form,
-            text="ID Produk",
-            bg=ABU,
-            font=("Arial", 10, "bold")
-        ).pack(side="left")
+            frame,
+            text="ID Produk"
+        ).grid(row=0, column=0)
 
         self.entry_id_produk = tk.Entry(
-            form,
-            font=("Arial", 11),
-            width=10
+            frame,
+            width=15
         )
-
-        self.entry_id_produk.pack(
-            side="left",
-            padx=10,
-            ipady=5
-        )
+        self.entry_id_produk.grid(row=0, column=1)
 
         tk.Label(
-            form,
-            text="Jumlah",
-            bg=ABU,
-            font=("Arial", 10, "bold")
-        ).pack(side="left")
+            frame,
+            text="Jumlah"
+        ).grid(row=0, column=2)
 
         self.entry_jumlah = tk.Entry(
-            form,
-            font=("Arial", 11),
-            width=10
+            frame,
+            width=15
         )
-
-        self.entry_jumlah.pack(
-            side="left",
-            padx=10,
-            ipady=5
-        )
+        self.entry_jumlah.grid(row=0, column=3)
 
         tk.Button(
-            form,
+            frame,
             text="TAMBAH",
-            command=self.tambah_keranjang,
-            bg=HIJAU,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            side="left",
-            ipadx=15,
-            ipady=6
-        )
+            command=self.tambah_keranjang
+        ).grid(row=0, column=4, padx=10)
 
-        # Keranjang
-        frame_table = tk.Frame(
+        self.tabel_keranjang = ttk.Treeview(
             self.root,
-            bg=ABU
+            columns=("id", "nama", "harga", "jumlah", "subtotal"),
+            show="headings",
+            height=12
         )
 
-        frame_table.pack(
-            fill="both",
-            expand=True,
-            padx=30
-        )
+        self.tabel_keranjang.heading("id", text="ID")
+        self.tabel_keranjang.heading("nama", text="Nama")
+        self.tabel_keranjang.heading("harga", text="Harga")
+        self.tabel_keranjang.heading("jumlah", text="Jumlah")
+        self.tabel_keranjang.heading("subtotal", text="Subtotal")
 
-        kolom = (
-            "ID",
-            "Nama",
-            "Harga",
-            "Jumlah",
-            "Subtotal"
-        )
+        self.tabel_keranjang.pack(pady=20)
 
-        self.tree_keranjang = ttk.Treeview(
-            frame_table,
-            columns=kolom,
-            show="headings"
-        )
-
-        for kol in kolom:
-
-            self.tree_keranjang.heading(
-                kol,
-                text=kol
-            )
-
-        self.tree_keranjang.pack(
-            fill="both",
-            expand=True
-        )
-
-        # Total
         self.label_total = tk.Label(
             self.root,
             text="TOTAL: Rp0",
-            font=("Arial", 18, "bold"),
-            bg=ABU,
-            fg=HIJAU_GELAP
+            font=("Arial", 18, "bold")
         )
 
-        self.label_total.pack(
-            pady=10
-        )
+        self.label_total.pack()
 
-        # Bayar
-        bayar_frame = tk.Frame(
-            self.root,
-            bg=ABU
-        )
-
-        bayar_frame.pack(
-            fill="x",
-            padx=30,
-            pady=10
-        )
+        frame_bayar = tk.Frame(self.root)
+        frame_bayar.pack(pady=10)
 
         tk.Label(
-            bayar_frame,
-            text="Uang Bayar",
-            bg=ABU,
-            font=("Arial", 11, "bold")
-        ).pack(side="left")
+            frame_bayar,
+            text="Uang Bayar"
+        ).grid(row=0, column=0)
 
         self.entry_bayar = tk.Entry(
-            bayar_frame,
-            font=("Arial", 12)
+            frame_bayar,
+            width=20
         )
-
-        self.entry_bayar.pack(
-            side="left",
-            padx=10,
-            ipady=5
-        )
+        self.entry_bayar.grid(row=0, column=1)
 
         tk.Button(
-            bayar_frame,
+            frame_bayar,
             text="BAYAR",
-            command=self.proses_bayar,
-            bg=KUNING,
-            fg=HITAM,
-            font=("Arial", 11, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            side="left",
-            ipadx=20,
-            ipady=7
-        )
+            command=self.proses_bayar
+        ).grid(row=0, column=2, padx=10)
 
         tk.Button(
-            bayar_frame,
+            self.root,
             text="KEMBALI",
-            command=self.halaman_utama,
-            bg=HITAM,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            side="right",
-            ipadx=15,
-            ipady=7
-        )
+            command=self.halaman_utama
+        ).pack(pady=10)
 
-
-    # =====================================================
-    # TAMBAH KERANJANG
-    # =====================================================
 
     def tambah_keranjang(self):
 
@@ -1011,18 +576,8 @@ class AplikasiToko:
 
             messagebox.showerror(
                 "Error",
-                "ID produk dan jumlah harus angka!"
+                "ID dan jumlah harus berupa angka."
             )
-
-            return
-
-        if jumlah <= 0:
-
-            messagebox.showwarning(
-                "Peringatan",
-                "Jumlah harus lebih dari 0!"
-            )
-
             return
 
         with koneksi_db() as conn:
@@ -1043,89 +598,71 @@ class AplikasiToko:
 
             messagebox.showerror(
                 "Error",
-                "Produk tidak ditemukan!"
+                "Produk tidak ditemukan."
             )
-
             return
 
         nama, harga, stok = produk
 
         jumlah_lama = self.keranjang.get(
             id_produk,
-            0
-        )
+            {}
+        ).get("jumlah", 0)
 
         if jumlah_lama + jumlah > stok:
 
-            messagebox.showwarning(
-                "Stok Tidak Cukup",
-                f"Stok tersedia: {stok}"
+            messagebox.showerror(
+                "Error",
+                "Stok tidak mencukupi."
             )
-
             return
 
-        self.keranjang[id_produk] = jumlah_lama + jumlah
-
-        self.tampilkan_keranjang()
+        self.keranjang[id_produk] = {
+            "nama": nama,
+            "harga": harga,
+            "jumlah": jumlah_lama + jumlah
+        }
 
         self.entry_id_produk.delete(0, tk.END)
         self.entry_jumlah.delete(0, tk.END)
 
+        self.tampilkan_keranjang()
 
-    # =====================================================
-    # TAMPILKAN KERANJANG
-    # =====================================================
 
     def tampilkan_keranjang(self):
 
-        for item in self.tree_keranjang.get_children():
-
-            self.tree_keranjang.delete(item)
+        for item in self.tabel_keranjang.get_children():
+            self.tabel_keranjang.delete(item)
 
         total = 0
 
-        with koneksi_db() as conn:
+        for id_produk, item in self.keranjang.items():
 
-            cur = conn.cursor()
+            subtotal = (
+                item["harga"] *
+                item["jumlah"]
+            )
 
-            for id_produk, jumlah in self.keranjang.items():
+            total += subtotal
 
-                cur.execute("""
-                    SELECT nama_produk, harga_jual
-                    FROM produk
-                    WHERE id = ?
-                """, (id_produk,))
+            self.tabel_keranjang.insert(
+                "",
+                "end",
+                values=(
+                    id_produk,
+                    item["nama"],
+                    rupiah(item["harga"]),
+                    item["jumlah"],
+                    rupiah(subtotal)
+                )
+            )
 
-                produk = cur.fetchone()
-
-                if produk:
-
-                    nama, harga = produk
-
-                    subtotal = harga * jumlah
-
-                    total += subtotal
-
-                    self.tree_keranjang.insert(
-                        "",
-                        "end",
-                        values=(
-                            id_produk,
-                            nama,
-                            rupiah(harga),
-                            jumlah,
-                            rupiah(subtotal)
-                        )
-                    )
+        self.total_transaksi = total
 
         self.label_total.config(
             text=f"TOTAL: {rupiah(total)}"
         )
 
-
-    # =====================================================
-    # PROSES BAYAR
-    # =====================================================
 
     def proses_bayar(self):
 
@@ -1133,14 +670,13 @@ class AplikasiToko:
 
             messagebox.showwarning(
                 "Peringatan",
-                "Keranjang masih kosong!"
+                "Keranjang masih kosong."
             )
-
             return
 
         try:
 
-            uang_bayar = int(
+            bayar = int(
                 self.entry_bayar.get()
             )
 
@@ -1148,112 +684,82 @@ class AplikasiToko:
 
             messagebox.showerror(
                 "Error",
-                "Uang bayar harus berupa angka!"
+                "Uang pembayaran harus berupa angka."
             )
-
             return
 
-        total = 0
+        total = self.total_transaksi
 
-        with koneksi_db() as conn:
+        if bayar < total:
 
-            cur = conn.cursor()
+            messagebox.showerror(
+                "Pembayaran",
+                f"Uang kurang {rupiah(total - bayar)}"
+            )
+            return
 
-            for id_produk, jumlah in self.keranjang.items():
+        kembalian = bayar - total
+
+        try:
+
+            with koneksi_db() as conn:
+
+                cur = conn.cursor()
+
+                tanggal = datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
 
                 cur.execute("""
-                    SELECT harga_jual, stok
-                    FROM produk
-                    WHERE id = ?
-                """, (id_produk,))
+                    INSERT INTO transaksi
+                    (tanggal, total_bayar)
+                    VALUES (?, ?)
+                """, (tanggal, total))
 
-                data = cur.fetchone()
+                id_transaksi = cur.lastrowid
 
-                if not data:
-                    continue
+                for id_produk, item in self.keranjang.items():
 
-                harga, stok = data
-
-                total += harga * jumlah
-
-                if jumlah > stok:
-
-                    messagebox.showerror(
-                        "Error",
-                        "Stok produk tidak mencukupi!"
+                    subtotal = (
+                        item["harga"] *
+                        item["jumlah"]
                     )
 
-                    return
+                    cur.execute("""
+                        INSERT INTO detail_transaksi
+                        (id_transaksi,
+                         id_produk,
+                         jumlah,
+                         subtotal)
+                        VALUES (?, ?, ?, ?)
+                    """, (
+                        id_transaksi,
+                        id_produk,
+                        item["jumlah"],
+                        subtotal
+                    ))
 
-        if uang_bayar < total:
+                    cur.execute("""
+                        UPDATE produk
+                        SET stok = stok - ?
+                        WHERE id = ?
+                    """, (
+                        item["jumlah"],
+                        id_produk
+                    ))
 
-            messagebox.showwarning(
-                "Uang Kurang",
-                f"Total: {rupiah(total)}\n"
-                f"Uang: {rupiah(uang_bayar)}"
+            self.cetak_struk(
+                id_transaksi,
+                bayar,
+                kembalian
             )
 
-            return
+        except sqlite3.Error as error:
 
-        kembalian = uang_bayar - total
-
-        tanggal = datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
-
-        with koneksi_db() as conn:
-
-            cur = conn.cursor()
-
-            # Simpan transaksi
-            cur.execute("""
-                INSERT INTO transaksi
-                (tanggal, total_bayar)
-                VALUES (?, ?)
-            """, (tanggal, total))
-
-            id_transaksi = cur.lastrowid
-
-            # Detail transaksi
-            for id_produk, jumlah in self.keranjang.items():
-
-                cur.execute("""
-                    SELECT harga_jual
-                    FROM produk
-                    WHERE id = ?
-                """, (id_produk,))
-
-                harga = cur.fetchone()[0]
-
-                subtotal = harga * jumlah
-
-                cur.execute("""
-                    INSERT INTO detail_transaksi
-                    (id_transaksi, id_produk, jumlah, subtotal)
-                    VALUES (?, ?, ?, ?)
-                """, (
-                    id_transaksi,
-                    id_produk,
-                    jumlah,
-                    subtotal
-                ))
-
-                # Kurangi stok
-                cur.execute("""
-                    UPDATE produk
-                    SET stok = stok - ?
-                    WHERE id = ?
-                """, (
-                    jumlah,
-                    id_produk
-                ))
-
-        self.cetak_struk(
-            id_transaksi,
-            total,
-            uang_bayar,
-            kembalian
-        )
+            messagebox.showerror(
+                "Database Error",
+                str(error)
+            )
 
 
     # =====================================================
@@ -1263,144 +769,130 @@ class AplikasiToko:
     def cetak_struk(
         self,
         id_transaksi,
-        total,
-        uang_bayar,
+        bayar,
         kembalian
     ):
 
-        window = tk.Toplevel(
-            self.root
+        struk = tk.Toplevel(self.root)
+
+        struk.title("Struk Pembelian")
+
+        struk.geometry("450x500")
+
+        teks = tk.Text(
+            struk,
+            font=("Courier New", 10)
         )
 
-        window.title("Struk Pembelian")
-        window.geometry("450x550")
-
-        text = tk.Text(
-            window,
-            font=("Courier New", 10),
-            bg=PUTIH,
-            fg=HITAM
-        )
-
-        text.pack(
+        teks.pack(
             fill="both",
             expand=True,
-            padx=15,
-            pady=15
+            padx=10,
+            pady=10
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "====================================\n"
+            "=" * 40 + "\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "          SMART-RETAIL\n"
+            "        TOKO KELONTONG\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "       TOKO KELONTONG\n"
+            "       SMART-RETAIL\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "====================================\n"
+            "=" * 40 + "\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            f"Transaksi : #{id_transaksi}\n"
+            f"Transaksi : {id_transaksi}\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            f"Tanggal   : {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}\n"
+            f"Tanggal   : "
+            f"{datetime.now().strftime('%d-%m-%Y %H:%M')}\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "------------------------------------\n"
+            "-" * 40 + "\n"
         )
 
-        with koneksi_db() as conn:
+        for item in self.keranjang.values():
 
-            cur = conn.cursor()
+            subtotal = (
+                item["harga"] *
+                item["jumlah"]
+            )
 
-            for id_produk, jumlah in self.keranjang.items():
+            teks.insert(
+                tk.END,
+                f"{item['nama']}\n"
+            )
 
-                cur.execute("""
-                    SELECT nama_produk, harga_jual
-                    FROM produk
-                    WHERE id = ?
-                """, (id_produk,))
+            teks.insert(
+                tk.END,
+                f"{item['jumlah']} x "
+                f"{rupiah(item['harga'])}"
+                f" = {rupiah(subtotal)}\n"
+            )
 
-                produk = cur.fetchone()
-
-                if produk:
-
-                    nama, harga = produk
-
-                    subtotal = harga * jumlah
-
-                    text.insert(
-                        tk.END,
-                        f"{nama}\n"
-                    )
-
-                    text.insert(
-                        tk.END,
-                        f"{jumlah} x {rupiah(harga)}\n"
-                    )
-
-                    text.insert(
-                        tk.END,
-                        f"Subtotal: {rupiah(subtotal)}\n\n"
-                    )
-
-        text.insert(
+        teks.insert(
             tk.END,
-            "------------------------------------\n"
+            "-" * 40 + "\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            f"TOTAL     : {rupiah(total)}\n"
+            f"TOTAL      : "
+            f"{rupiah(self.total_transaksi)}\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            f"BAYAR     : {rupiah(uang_bayar)}\n"
+            f"BAYAR      : "
+            f"{rupiah(bayar)}\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            f"KEMBALIAN : {rupiah(kembalian)}\n"
+            f"KEMBALIAN  : "
+            f"{rupiah(kembalian)}\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "====================================\n"
+            "=" * 40 + "\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "        TERIMA KASIH 🙏\n"
+            "    Terima kasih sudah berbelanja!\n"
         )
 
-        text.insert(
+        teks.insert(
             tk.END,
-            "====================================\n"
+            "=" * 40
         )
 
-        text.config(
-            state="disabled"
-        )
+        teks.config(state="disabled")
 
+        # Kosongkan keranjang
         self.keranjang = {}
 
-        self.halaman_transaksi()
+        messagebox.showinfo(
+            "Berhasil",
+            "Transaksi berhasil disimpan."
+        )
 
 
     # =====================================================
@@ -1411,63 +903,33 @@ class AplikasiToko:
 
         self.bersihkan()
 
-        header = tk.Frame(
-            self.root,
-            bg=HIJAU_GELAP
-        )
-
-        header.pack(fill="x")
-
         tk.Label(
-            header,
+            self.root,
             text="RIWAYAT TRANSAKSI",
-            font=("Arial", 22, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
+            font=("Arial", 22, "bold")
         ).pack(pady=20)
 
-        frame = tk.Frame(
+        tabel = ttk.Treeview(
             self.root,
-            bg=ABU
+            columns=("id", "tanggal", "total"),
+            show="headings",
+            height=15
         )
 
-        frame.pack(
-            fill="both",
-            expand=True,
-            padx=30,
-            pady=20
-        )
+        tabel.heading("id", text="ID")
+        tabel.heading("tanggal", text="Tanggal")
+        tabel.heading("total", text="Total")
 
-        kolom = (
-            "ID",
-            "Tanggal",
-            "Total"
-        )
-
-        tree = ttk.Treeview(
-            frame,
-            columns=kolom,
-            show="headings"
-        )
-
-        for kol in kolom:
-
-            tree.heading(
-                kol,
-                text=kol
-            )
-
-        tree.pack(
-            fill="both",
-            expand=True
-        )
+        tabel.pack(pady=10)
 
         with koneksi_db() as conn:
 
             cur = conn.cursor()
 
             cur.execute("""
-                SELECT id, tanggal, total_bayar
+                SELECT id,
+                       tanggal,
+                       total_bayar
                 FROM transaksi
                 ORDER BY id DESC
             """)
@@ -1476,7 +938,7 @@ class AplikasiToko:
 
         for row in data:
 
-            tree.insert(
+            tabel.insert(
                 "",
                 "end",
                 values=(
@@ -1489,185 +951,85 @@ class AplikasiToko:
         tk.Button(
             self.root,
             text="KEMBALI",
-            command=self.halaman_utama,
-            bg=HITAM,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            pady=15,
-            ipadx=20,
-            ipady=7
-        )
+            command=self.halaman_utama
+        ).pack(pady=15)
 
 
     # =====================================================
-    # LAPORAN PENJUALAN
+    # LAPORAN
     # =====================================================
 
     def halaman_laporan(self):
 
         self.bersihkan()
 
-        header = tk.Frame(
-            self.root,
-            bg=HIJAU_GELAP
-        )
-
-        header.pack(fill="x")
-
         tk.Label(
-            header,
-            text="LAPORAN PENJUALAN",
-            font=("Arial", 22, "bold"),
-            bg=HIJAU_GELAP,
-            fg=PUTIH
-        ).pack(pady=20)
-
-        frame = tk.Frame(
             self.root,
-            bg=ABU
-        )
-
-        frame.pack(
-            fill="both",
-            expand=True,
-            padx=50,
-            pady=30
-        )
+            text="LAPORAN PENJUALAN",
+            font=("Arial", 22, "bold")
+        ).pack(pady=20)
 
         with koneksi_db() as conn:
 
             cur = conn.cursor()
 
-            # Jumlah transaksi
-            cur.execute(
-                "SELECT COUNT(*) FROM transaksi"
-            )
+            cur.execute("""
+                SELECT COUNT(*),
+                       COALESCE(SUM(total_bayar), 0)
+                FROM transaksi
+            """)
 
-            jumlah_transaksi = cur.fetchone()[0]
+            jumlah, pendapatan = cur.fetchone()
 
-            # Total penjualan
-            cur.execute(
-                "SELECT COALESCE(SUM(total_bayar), 0) FROM transaksi"
-            )
-
-            total_penjualan = cur.fetchone()[0]
-
-            # Produk terlaris
             cur.execute("""
                 SELECT p.nama_produk,
-                       SUM(d.jumlah) AS total_terjual
-                FROM detail_transaksi d
+                       SUM(dt.jumlah)
+                FROM detail_transaksi dt
                 JOIN produk p
-                ON d.id_produk = p.id
-                GROUP BY d.id_produk
-                ORDER BY total_terjual DESC
+                ON p.id = dt.id_produk
+                GROUP BY dt.id_produk
+                ORDER BY SUM(dt.jumlah) DESC
                 LIMIT 1
             """)
 
-            produk_terlaris = cur.fetchone()
+            terlaris = cur.fetchone()
 
-        # Kartu transaksi
-        self.kartu_laporan(
-            frame,
-            "JUMLAH TRANSAKSI",
-            str(jumlah_transaksi),
-            BIRU
-        ).pack(
-            fill="x",
-            pady=8
-        )
+        tk.Label(
+            self.root,
+            text=f"Jumlah transaksi : {jumlah}",
+            font=("Arial", 14)
+        ).pack(pady=10)
 
-        self.kartu_laporan(
-            frame,
-            "TOTAL PENJUALAN",
-            rupiah(total_penjualan),
-            HIJAU
-        ).pack(
-            fill="x",
-            pady=8
-        )
+        tk.Label(
+            self.root,
+            text=f"Total penjualan : {rupiah(pendapatan)}",
+            font=("Arial", 14)
+        ).pack(pady=10)
 
-        if produk_terlaris:
+        if terlaris:
 
-            nama = produk_terlaris[0]
-            jumlah = produk_terlaris[1]
+            tk.Label(
+                self.root,
+                text=(
+                    f"Produk terlaris : "
+                    f"{terlaris[0]} "
+                    f"({terlaris[1]} pcs)"
+                ),
+                font=("Arial", 14)
+            ).pack(pady=10)
 
         else:
 
-            nama = "-"
-            jumlah = 0
-
-        self.kartu_laporan(
-            frame,
-            "PRODUK TERLARIS",
-            f"{nama} ({jumlah} terjual)",
-            UNGU
-        ).pack(
-            fill="x",
-            pady=8
-        )
+            tk.Label(
+                self.root,
+                text="Belum ada penjualan."
+            ).pack(pady=10)
 
         tk.Button(
             self.root,
             text="KEMBALI",
-            command=self.halaman_utama,
-            bg=HITAM,
-            fg=PUTIH,
-            font=("Arial", 10, "bold"),
-            bd=0,
-            cursor="hand2"
-        ).pack(
-            pady=15,
-            ipadx=20,
-            ipady=7
-        )
-
-
-    # =====================================================
-    # KARTU LAPORAN
-    # =====================================================
-
-    def kartu_laporan(
-        self,
-        parent,
-        judul,
-        nilai,
-        warna
-    ):
-
-        frame = tk.Frame(
-            parent,
-            bg=warna
-        )
-
-        tk.Label(
-            frame,
-            text=judul,
-            font=("Arial", 11, "bold"),
-            bg=warna,
-            fg=PUTIH
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=(15, 2)
-        )
-
-        tk.Label(
-            frame,
-            text=nilai,
-            font=("Arial", 20, "bold"),
-            bg=warna,
-            fg=PUTIH
-        ).pack(
-            anchor="w",
-            padx=20,
-            pady=(0, 15)
-        )
-
-        return frame
+            command=self.halaman_utama
+        ).pack(pady=30)
 
 
     # =====================================================
@@ -1676,21 +1038,14 @@ class AplikasiToko:
 
     def logout(self):
 
-        yakin = messagebox.askyesno(
-            "Logout",
-            "Yakin ingin keluar?"
-        )
+        self.user = None
+        self.keranjang = {}
 
-        if yakin:
-
-            self.user = None
-            self.keranjang = {}
-
-            self.halaman_login()
+        self.halaman_login()
 
 
 # =========================================================
-# JALANKAN PROGRAM
+# PROGRAM UTAMA
 # =========================================================
 
 if __name__ == "__main__":
